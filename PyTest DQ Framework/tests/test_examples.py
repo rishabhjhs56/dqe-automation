@@ -36,7 +36,7 @@ def target_data(parquet_reader):
 # Test 1 - Target dataset should not be empty
 # ---------------------------------------------------
 @pytest.mark.parquet_data
-def test_check_dataset_is_not_empty(target_data, dq):
+def test_check_dataset_is_not_empty(target_data, data_quality_library):
     dq.check_dataset_is_not_empty(target_data)
 
 
@@ -44,5 +44,5 @@ def test_check_dataset_is_not_empty(target_data, dq):
 # Test 2 - Source vs Target row count match
 # ---------------------------------------------------
 @pytest.mark.parquet_data
-def test_check_count(source_data, target_data, dq):
+def test_check_count(source_data, target_data, data_quality_library):
     dq.check_count(source_data, target_data)

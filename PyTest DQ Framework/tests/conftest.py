@@ -8,8 +8,16 @@ def pytest_addoption(parser):
     parser.addoption("--db_host", action="store", default="localhost", help="Database host")
     parser.addoption("--db_port", action="store", default="5432", help="Database port")
     parser.addoption("--db_name", action="store", default="mydatabase", help="Database name")
-    parser.addoption("--db_user", action="store", default="postgres", help="Database user")
-    parser.addoption("--db_password", action="store", default="postgres", help="Database password")
+    parser.addoption("--db_user", action="store", help="Database user")
+    parser.addoption("--db_password", action="store", help="Database password")
+
+
+def pytest_configure(config):
+    required_options = ["db_user", "db_password"]
+    for opt in required_options:
+        if not config.getoption(f"--{opt}"):
+            raise pytest.
+UsageError(f"Missing required option: --{opt}")
 
 
 @pytest.fixture(scope="session")

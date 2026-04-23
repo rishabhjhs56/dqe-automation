@@ -1,6 +1,6 @@
 import pandas as pd
 
-@pytest.fixture(scope='session')
+
 def parquet_reader(request):
     try:
         reader = ParquetReader()

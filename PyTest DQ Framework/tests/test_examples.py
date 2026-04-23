@@ -1,33 +1,46 @@
 """
-Description: Data Quality checks ...
+Description: Data Quality checks for Source vs Target parquet validation
 Requirement(s): TICKET-1234
-Author(s): Name Surname
+Author(s): Rishabh Gupta
 """
 
 import pytest
 
 
-@pytest.fixture(scope='module')
+# ---------------------------------------------------
+# Source Data Fixture (Postgres)
+# ---------------------------------------------------
+@pytest.fixture(scope="module")
 def source_data(db_connection):
     source_query = """
-    SELECT ...
+        SELECT *
+        FROM employees
     """
-    source_data = db_connection.get_data_sql(source_query)
-    return source_data
+    data = db_connection.get_data_sql(source_query)
+    return data
 
 
-@pytest.fixture(scope='module')
+# ---------------------------------------------------
+# Target Data Fixture (Parquet File)
+# ---------------------------------------------------
+@pytest.fixture(scope="module")
 def target_data(parquet_reader):
-    target_path = '/root/path/to/file'
-    target_data = parquet_reader.process(target_path)
-    return target_data
+    target_path = "data_dev/sample_files/employees.parquet"
+    data = parquet_reader.process(target_path)
+    return data
 
 
-@pytest.mark.example
-def test_check_dataset_is_not_empty(target_data, data_quality_library):
-    data_quality_library.check_dataset_is_not_empty(target_data)
+# ---------------------------------------------------
+# Test 1 - Target dataset should not be empty
+# ---------------------------------------------------
+@pytest.mark.parquet_data
+def test_check_dataset_is_not_empty(target_data, dq):
+    dq.check_dataset_is_not_empty(target_data)
 
 
-@pytest.mark.example
-def test_check_count(source_data, target_data, data_quality_library):
-    data_quality_library.check_count(source_data, target_data)
+# ---------------------------------------------------
+# Test 2 - Source vs Target row count match
+# ---------------------------------------------------
+@pytest.mark.parquet_data
+def test_check_count(source_data, target_data, dq):
+    dq.check_count(source_data, target_data)

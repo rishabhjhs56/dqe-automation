@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+
+    environment {
+        POSTGRES_SECRET = credentials('jenkins-postgres-credentials')
+    }
+
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main', url: 'https://github.com/rishabhjhs56/dqe-automation.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                python -m pip install --upgrade pip
+                pip install -r "PyTest DQ Framework/requirements.txt"
+                pip install pytest pytest-html
+                '''
+            }
+        }
+        
+        stage('Archive Test Report') {
+    steps {
+        // Archive the entire html_report directory, including all assets
+        archiveArtifacts artifacts: 'PyTest DQ Framework/html_report/**', allowEmptyArchive: true
+
+        // Publish the HTML report
+        publishHTML(target: [
+            allowMissing: false,  // Fail the pipeline if the report is missing
+            keepAll: true,        // Keep all reports from previous runs
+            reportDir: 'PyTest DQ Framework/html_report', // Correct directory path
+            reportFiles: 'report.html',                   // Entry point file (change to 'index.html' if that's your main file)
+            reportName: 'HTML Test Report'                // Display name in Jenkins
+        ])
+    }
+}
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                . venv/bin/activate
+                mkdir -p html_report
+
+                pytest "PyTest DQ Framework/tests" -m "parquet_data" \
+                --db_host="localhost" \
+                --db_port="5432" \
+                --db_name="mydatabase" \
+                --db_user=$POSTGRES_SECRET_USR \
+                --db_password=$POSTGRES_SECRET_PSW \
+                --html=html_report/report.html
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'html_report/report.html', fingerprint: true
+        }
+    }
+}

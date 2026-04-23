@@ -16,8 +16,7 @@ def pytest_configure(config):
     required_options = ["db_user", "db_password"]
     for opt in required_options:
         if not config.getoption(f"--{opt}"):
-            raise pytest.
-UsageError(f"Missing required option: --{opt}")
+            raise pytest.UsageError(f"Missing required option: --{opt}")
 
 
 @pytest.fixture(scope="session")

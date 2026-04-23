@@ -27,3 +27,7 @@ class DataQualityLibrary:
         for col, dtype in expected_types.items():
             assert col in df.columns, f"{col} not found"
             assert str(df[col].dtype) == dtype, f"{col} datatype mismatch"
+
+    @staticmethod
+    def check_dataset_is_not_empty(df):
+        assert not df.empty, "Dataset is empty"

@@ -1,13 +1,12 @@
 import pandas as pd
-import pytest
-
 
 class ParquetReader:
-    def parquet_reader(request):
+    def __init__(self):
+        pass
+
+    def process(self, file_path):
+        # Reads a Parquet file and returns a DataFrame
         try:
-            reader = ParquetReader()
-            yield reader
+            return pd.read_parquet(file_path)
         except Exception as e:
-            pytest.fail(f"Failed to initialize ParquetReader: {e}")
-        finally:
-            del reader
+            raise RuntimeError(f"Failed to read parquet file: {e}")

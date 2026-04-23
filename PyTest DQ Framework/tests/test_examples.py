@@ -25,7 +25,7 @@ def source_data(db_connection):
 # ---------------------------------------------------
 @pytest.fixture(scope="module")
 def target_data(parquet_reader):
-    target_path = "data/sample_files/employees.parquet"
+    target_path = "target_path = "PyTest DQ Framework/data/sample_files/employees.parquet""
     data = parquet_reader.process(target_path)
     return data
 

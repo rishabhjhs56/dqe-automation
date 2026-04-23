@@ -4,7 +4,7 @@ import pandas as pd
 class DataQualityLibrary:
 
     @staticmethod
-    def check_count(self, source_data, target_data):
+    def check_count(source_data, target_data):
         assert len(source_data) == len(target_data), "Row counts do not match"
 
     @staticmethod

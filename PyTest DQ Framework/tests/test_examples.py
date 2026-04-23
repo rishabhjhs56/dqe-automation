@@ -5,6 +5,7 @@ Author(s): Rishabh Gupta
 """
 
 import pytest
+import pandas as pd
 
 
 # ---------------------------------------------------
@@ -16,7 +17,8 @@ def source_data(db_connection):
         SELECT *
         FROM employees
     """
-    data = db_connection.get_data_sql(source_query)
+    
+    data = pd.read_sql(source_query, db_connection)
     return data
 
 

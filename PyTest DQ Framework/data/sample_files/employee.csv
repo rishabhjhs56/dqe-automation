@@ -1,0 +1,11 @@
+employee_id,first_name,last_name,email,department,job_title,hire_date,salary,is_active,country
+1001,Rishabh,Gupta,rishabh.gupta@company.com,Engineering,Data Quality Engineer,2021-04-12,78000,True,India
+1002,Ananya,Sharma,ananya.sharma@company.com,Engineering,Data Engineer,2020-08-03,85000,True,India
+1003,Rahul,Verma,rahul.verma@company.com,Finance,Financial Analyst,2019-01-15,72000,True,India
+1004,Priya,Singh,priya.singh@company.com,HR,HR Manager,2018-06-21,69000,True,India
+1005,Amit,Kumar,amit.kumar@company.com,Sales,Sales Executive,2022-02-10,56000,True,India
+1006,Neha,Jain,neha.jain@company.com,Marketing,Marketing Specialist,2021-11-05,61000,True,India
+1007,Vikram,Patel,vikram.patel@company.com,Engineering,QA Analyst,2023-03-18,64000,True,India
+1008,Sneha,Mehta,sneha.mehta@company.com,Support,Customer Support Lead,2020-09-14,52000,False,India
+1009,Arjun,Rao,arjun.rao@company.com,Operations,Operations Manager,2017-12-01,91000,True,India
+1010,Kavya,Nair,kavya.nair@company.com,Engineering,Software Engineer,2024-01-08,70000,True,India

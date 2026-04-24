@@ -46,3 +46,20 @@ def test_check_dataset_is_not_empty(target_data, data_quality_library):
 @pytest.mark.parquet_data
 def test_check_count(source_data, target_data, data_quality_library):
     data_quality_library.check_count(source_data, target_data)
+
+
+# -------------------------------------------------------------------------
+# Test 3 - Target dataset should not be having Duplicates records
+# -------------------------------------------------------------------------
+@pytest.mark.parquet_data
+def test_uniqueness(target_data, data_quality_library):
+    data_quality_library.check_duplicates(target_data)
+
+
+# -------------------------------------------------------------------------
+# Test 3 - Target dataset should not be having NULL Records
+# -------------------------------------------------------------------------
+@pytest.mark.parquet_data
+def test_validity(target_data, data_quality_library):
+    data_quality_library.check_nulls(target_data)
+

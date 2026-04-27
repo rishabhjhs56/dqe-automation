@@ -4,4 +4,4 @@ pytest
 pytest-html
 psycopg2-binary
 plotly
-psycopg2
+

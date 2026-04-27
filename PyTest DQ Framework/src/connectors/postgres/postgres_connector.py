@@ -1,5 +1,5 @@
 import os
-import psycopg2
+from src.connectors.postgres.psycopg2_wrapper import psycopg2
 
 
 class PostgresConnectorContextManager:

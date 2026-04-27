@@ -15,7 +15,7 @@ from src.connectors.postgres.postgres_connector import PostgresConnectorContextM
 RUN_ID = datetime.now().strftime("%Y-%m-%d_%H-%M")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "output" / RUN_ID
+OUTPUT_DIR = BASE_DIR / "output" 
 PARQUET_BASE_DIR = OUTPUT_DIR / "parquet"
 
 PARQUET_BASE_DIR.mkdir(parents=True, exist_ok=True)

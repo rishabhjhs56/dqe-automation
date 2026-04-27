@@ -1,10 +1,25 @@
-import glob
+import os
 import pandas as pd
 import pytest
 
 
 def get_latest_parquet():
-    return f"output/parquet/facility_name_min_time_spent_per_visit_date"
+    """Return the path to the sample parquet file"""
+    # Use the sample files from data/sample_files
+    table_name = "facility_name_min_time_spent_per_visit_date"
+    
+    # Try different possible paths to find the sample file
+    possible_paths = [
+        f"data/sample_files/{table_name}.parquet",
+        f"PyTest DQ Framework/data/sample_files/{table_name}.parquet"
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            return path
+    
+    # If no sample file is found, raise a helpful error
+    raise ValueError(f"Sample file not found. Current directory: {os.getcwd()}")
 
 
 @pytest.fixture(scope="module")
@@ -43,5 +58,3 @@ def test_nulls(target_data, data_quality_library):
 @pytest.mark.parquet_data
 def test_duplicates(target_data, data_quality_library):
     data_quality_library.check_duplicates(target_data)
-
-

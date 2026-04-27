@@ -4,10 +4,7 @@ import pytest
 
 
 def get_latest_parquet():
-    #folders = sorted(glob.glob("PyTest DQ Framework/output/*/parquet"))
-    folders = sorted(glob.glob("output/*/parquet"))
-    latest = folders[-1]
-    return f"{latest}/facility_type_avg_time_spent_per_visit_date"
+    return f"output/parquet/facility_type_avg_time_spent_per_visit_date"
 
 
 @pytest.fixture(scope="module")
@@ -29,5 +26,22 @@ def source_data(db_connection):
 
 
 @pytest.mark.parquet_data
+def test_not_empty(target_data, data_quality_library):
+    data_quality_library.check_dataset_is_not_empty(target_data)
+
+
+@pytest.mark.parquet_data
 def test_count(source_data, target_data, data_quality_library):
     data_quality_library.check_count(source_data, target_data)
+
+
+@pytest.mark.parquet_data
+def test_nulls(target_data, data_quality_library):
+    data_quality_library.check_nulls(target_data)
+
+
+@pytest.mark.parquet_data
+def test_duplicates(target_data, data_quality_library):
+    data_quality_library.check_duplicates(target_data)
+
+

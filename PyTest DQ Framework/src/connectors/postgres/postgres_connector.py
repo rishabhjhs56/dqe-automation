@@ -1,14 +1,22 @@
+import os
 import psycopg2
 
 
 class PostgresConnectorContextManager:
 
-    def __init__(self, db_host, db_port, db_name, db_user, db_password):
-        self.db_host = db_host
-        self.db_port = db_port
-        self.db_name = db_name
-        self.db_user = db_user
-        self.db_password = db_password
+    def __init__(
+        self,
+        db_host=None,
+        db_port=None,
+        db_name=None,
+        db_user=None,
+        db_password=None
+    ):
+        self.db_host = db_host or os.getenv("DB_HOST", "localhost")
+        self.db_port = db_port or os.getenv("DB_PORT", "5432")
+        self.db_name = db_name or os.getenv("DB_NAME", "mydatabase")
+        self.db_user = db_user or os.getenv("DB_USER")
+        self.db_password = db_password or os.getenv("DB_PASSWORD")
         self.connection = None
 
     def __enter__(self):

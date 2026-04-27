@@ -4,7 +4,8 @@ import pytest
 
 
 def get_latest_parquet():
-    folders = sorted(glob.glob("PyTest DQ Framework/output/*/parquet"))
+    #folders = sorted(glob.glob("PyTest DQ Framework/output/*/parquet"))
+    folders = sorted(glob.glob("output/*/parquet"))
     latest = folders[-1]
     return f"{latest}/patient_sum_treatment_cost_per_facility_type"
 

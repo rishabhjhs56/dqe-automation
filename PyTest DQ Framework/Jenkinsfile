@@ -1,0 +1,111 @@
+pipeline {
+    agent any
+
+    environment {
+        POSTGRES_SECRET = credentials('jenkins-postgres-credentials')
+    }
+
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/rishabhjhs56/dqe-automation.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                python -m pip install --upgrade pip
+                pip install -r "PyTest DQ Framework/requirements.txt"
+                '''
+            }
+        }
+
+        stage('Generate Data') {
+    steps {
+        sh '''
+        . venv/bin/activate
+
+        export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+        export PGPASSWORD=$POSTGRES_SECRET_PSW
+
+        psql \
+        -h localhost \
+        -p 5432 \
+        -U $POSTGRES_SECRET_USR \
+        -d mydatabase \
+        -f "PyTest DQ Framework/data_generation/generate_table_data.sql"
+        '''
+    }
+}
+
+      stage('Transform Data') {
+    steps {
+        sh '''
+        . venv/bin/activate
+
+        export PYTHONPATH="$WORKSPACE/PyTest DQ Framework"
+
+        python "PyTest DQ Framework/Scripts/transform_to_parquet.py"
+        '''
+    }
+}
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                . venv/bin/activate
+
+                mkdir -p "PyTest DQ Framework/html_report"
+
+                pytest "PyTest DQ Framework/tests" -m "parquet_data" \
+                --db_host="localhost" \
+                --db_port="5432" \
+                --db_name="mydatabase" \
+                --db_user="$POSTGRES_SECRET_USR" \
+                --db_password="$POSTGRES_SECRET_PSW" \
+                --html="PyTest DQ Framework/html_report/report.html" \
+                --self-contained-html
+                '''
+            }
+        }
+
+        stage('Generate HTML Report') {
+            steps {
+                sh '''
+                . venv/bin/activate
+
+                if [ -f "PyTest DQ Framework/Scripts/generate_html_report.py" ]; then
+                    python "PyTest DQ Framework/Scripts/generate_html_report.py"
+                else
+                    echo "generate_html_report.py not found. Skipping..."
+                fi
+                '''
+            }
+        }
+
+        stage('Archive Test Report') {
+            steps {
+                archiveArtifacts artifacts: 'PyTest DQ Framework/html_report/**', allowEmptyArchive: true
+
+                publishHTML(target: [
+                    allowMissing: true,
+                    keepAll: true,
+                    reportDir: 'PyTest DQ Framework/html_report',
+                    reportFiles: 'report.html',
+                    reportName: 'HTML Test Report'
+                ])
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'PyTest DQ Framework/html_report/**', fingerprint: true, allowEmptyArchive: true
+        }
+    }
+}

@@ -1,5 +1,11 @@
 -- DDL
-CREATE OR REPLACE TABLE facilities (
+
+DROP TABLE IF EXISTS visits;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS facilities;
+
+
+CREATE TABLE facilities (
     id SERIAL PRIMARY KEY,
     external_id VARCHAR(50),
     facility_name VARCHAR(100),
@@ -9,7 +15,7 @@ CREATE OR REPLACE TABLE facilities (
     state VARCHAR(50)
 );
 
-CREATE OR REPLACE TABLE patients (
+CREATE  TABLE patients (
     id SERIAL PRIMARY KEY,
     external_id VARCHAR(50),
     first_name VARCHAR(50),
@@ -18,7 +24,7 @@ CREATE OR REPLACE TABLE patients (
     date_of_birth DATE
 );
 
-CREATE OR REPLACE TABLE visits (
+CREATE  TABLE visits (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
     facility_id INTEGER REFERENCES facilities(id),

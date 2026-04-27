@@ -1,7 +1,24 @@
 import os
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 
 from src.connectors.postgres.postgres_connector import PostgresConnectorContextManager
+
+
+# ---------------------------------------------------
+# Create Dynamic Output Folder
+# Example:
+# output/2026-04-27_13-30/parquet/
+# ---------------------------------------------------
+RUN_ID = datetime.now().strftime("%Y-%m-%d_%H-%M")
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = BASE_DIR / "output" / RUN_ID
+PARQUET_BASE_DIR = OUTPUT_DIR / "parquet"
+
+PARQUET_BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def facility_name_min_time_spent_per_visit_date(db_connection):
@@ -22,8 +39,7 @@ def facility_name_min_time_spent_per_visit_date(db_connection):
         df["visit_date"]
     ).dt.strftime("%Y-%m")
 
-    out_dir = "facility_name_min_time_spent_per_visit_date"
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = PARQUET_BASE_DIR / "facility_name_min_time_spent_per_visit_date"
 
     df.to_parquet(
         out_dir,
@@ -50,8 +66,7 @@ def facility_type_avg_time_spent_per_visit_date(db_connection):
         df["visit_date"]
     ).dt.strftime("%Y-%m")
 
-    out_dir = "facility_type_avg_time_spent_per_visit_date"
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = PARQUET_BASE_DIR / "facility_type_avg_time_spent_per_visit_date"
 
     df.to_parquet(
         out_dir,
@@ -75,8 +90,7 @@ def patient_sum_treatment_cost_per_facility_type(db_connection):
 
     df = pd.read_sql(query, db_connection)
 
-    out_dir = "patient_sum_treatment_cost_per_facility_type"
-    os.makedirs(out_dir, exist_ok=True)
+    out_dir = PARQUET_BASE_DIR / "patient_sum_treatment_cost_per_facility_type"
 
     df.to_parquet(
         out_dir,
@@ -89,9 +103,7 @@ if __name__ == "__main__":
     with PostgresConnectorContextManager() as conn:
 
         facility_name_min_time_spent_per_visit_date(conn)
-
         facility_type_avg_time_spent_per_visit_date(conn)
-
         patient_sum_treatment_cost_per_facility_type(conn)
 
-    print("All partitioned Parquet files generated.")
+    print(f"All partitioned Parquet files generated at: {PARQUET_BASE_DIR}")

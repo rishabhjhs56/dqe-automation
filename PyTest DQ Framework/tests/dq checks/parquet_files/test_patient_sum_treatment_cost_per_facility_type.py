@@ -7,7 +7,7 @@ import os
 def get_latest_parquet():
     """Return the path to the sample parquet file"""
     # Use the sample files from data/sample_files
-    table_name = "facility_name_min_time_spent_per_visit_date"
+    table_name = "patient_sum_treatment_cost_per_facility_type"
     
     # Try different possible paths to find the sample file
     possible_paths = [

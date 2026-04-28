@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 
+
 def get_latest_parquet():
     """Return the path to the sample parquet file"""
     # Use the sample files from data/sample_files

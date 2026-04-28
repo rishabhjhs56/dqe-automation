@@ -1,6 +1,7 @@
 import glob
 import pandas as pd
 import pytest
+import os
 
 
 def get_latest_parquet():

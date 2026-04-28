@@ -1,0 +1,9 @@
+Last 7 Days Facility Data
+facility_type,visit_date,avg_time_spent
+Hospital,2026-04-24,38.0
+Hospital,2026-04-23,50.0
+Clinic,2026-04-22,25.0
+Clinic,2026-04-21,40.0
+Hospital,2026-04-20,35.0
+Hospital,2026-04-19,45.0
+Clinic,2026-04-18,30.0

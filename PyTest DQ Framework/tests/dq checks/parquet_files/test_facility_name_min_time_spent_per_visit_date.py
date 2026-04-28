@@ -1,31 +1,29 @@
+# tests/dq_checks/parquet_files/test_facility_name_min_time_spent_per_visit_date.py
+
 import os
-import pandas as pd
 import pytest
+import pandas as pd
 
 
+def get_parquet_path(dataset_name):
+    path1 = f"output/{dataset_name}"
+    path2 = f"PyTest DQ Framework/output/{dataset_name}"
 
-def get_latest_parquet():
-    """Return the path to the sample parquet file"""
-    # Use the sample files from data/sample_files
-    table_name = "facility_name_min_time_spent_per_visit_date"
-    
-    # Try different possible paths to find the sample file
-    possible_paths = [
-        f"data/sample_files/{table_name}.parquet",
-        f"PyTest DQ Framework/data/sample_files/{table_name}.parquet"
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
-    
-    # If no sample file is found, raise a helpful error
-    raise ValueError(f"Sample file not found. Current directory: {os.getcwd()}")
+    if os.path.exists(path1):
+        return path1
+
+    if os.path.exists(path2):
+        return path2
+
+    raise FileNotFoundError(f"{dataset_name} folder not found")
 
 
 @pytest.fixture(scope="module")
 def target_data(parquet_reader):
-    return parquet_reader.process(get_latest_parquet())
+    target_path = get_parquet_path(
+        "facility_name_min_time_spent_per_visit_date"
+    )
+    return parquet_reader.process(target_path)
 
 
 @pytest.fixture(scope="module")
@@ -36,6 +34,8 @@ def source_data(db_connection):
            MIN(v.duration_minutes) AS avg_time_spent
     FROM visits v
     JOIN facilities f ON v.facility_id = f.id
+    WHERE v.visit_timestamp IS NOT NULL
+      AND v.duration_minutes IS NOT NULL
     GROUP BY f.facility_name, DATE(v.visit_timestamp)
     """
     return pd.read_sql(query, db_connection)

@@ -6,8 +6,8 @@ import pandas as pd
 
 
 def get_parquet_path(dataset_name):
-    path1 = f"output/{dataset_name}"
-    path2 = f"PyTest DQ Framework/output/{dataset_name}"
+    path1 = f"output/parquet/{dataset_name}"
+    path2 = f"PyTest DQ Framework/output/parquet/{dataset_name}"
 
     if os.path.exists(path1):
         return path1

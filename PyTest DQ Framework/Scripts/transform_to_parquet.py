@@ -1,26 +1,34 @@
-import os
-from datetime import datetime
+import shutil
 from pathlib import Path
 
 import pandas as pd
 
-from src.connectors.postgres.postgres_connector import PostgresConnectorContextManager
-
+from src.connectors.postgres.postgres_connector import (
+    PostgresConnectorContextManager
+)
 
 # ---------------------------------------------------
-# Create Dynamic Output Folder
-# Example:
-# output/2026-04-27_13-30/parquet/
+# Fixed Output Folder
+# output/parquet/
 # ---------------------------------------------------
-RUN_ID = datetime.now().strftime("%Y-%m-%d_%H-%M")
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "output" 
+OUTPUT_DIR = BASE_DIR / "output"
 PARQUET_BASE_DIR = OUTPUT_DIR / "parquet"
 
-PARQUET_BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+# ---------------------------------------------------
+# Clean Old Output Every Run
+# ---------------------------------------------------
+def clean_old_output():
+    if PARQUET_BASE_DIR.exists():
+        shutil.rmtree(PARQUET_BASE_DIR)
+
+    PARQUET_BASE_DIR.mkdir(parents=True, exist_ok=True)
 
 
+# ---------------------------------------------------
+# Dataset 1
+# ---------------------------------------------------
 def facility_name_min_time_spent_per_visit_date(db_connection):
     query = """
     SELECT f.facility_name,
@@ -44,10 +52,14 @@ def facility_name_min_time_spent_per_visit_date(db_connection):
     df.to_parquet(
         out_dir,
         partition_cols=["visit_year_month"],
-        index=False
+        index=False,
+        engine="pyarrow"
     )
 
 
+# ---------------------------------------------------
+# Dataset 2
+# ---------------------------------------------------
 def facility_type_avg_time_spent_per_visit_date(db_connection):
     query = """
     SELECT f.facility_type,
@@ -71,10 +83,14 @@ def facility_type_avg_time_spent_per_visit_date(db_connection):
     df.to_parquet(
         out_dir,
         partition_cols=["visit_year_month"],
-        index=False
+        index=False,
+        engine="pyarrow"
     )
 
 
+# ---------------------------------------------------
+# Dataset 3
+# ---------------------------------------------------
 def patient_sum_treatment_cost_per_facility_type(db_connection):
     query = """
     SELECT f.facility_type,
@@ -95,13 +111,19 @@ def patient_sum_treatment_cost_per_facility_type(db_connection):
     df.to_parquet(
         out_dir,
         partition_cols=["facility_type"],
-        index=False
+        index=False,
+        engine="pyarrow"
     )
 
 
+# ---------------------------------------------------
+# Main
+# ---------------------------------------------------
 if __name__ == "__main__":
-    with PostgresConnectorContextManager() as conn:
+    print("Cleaning old parquet files...")
+    clean_old_output()
 
+    with PostgresConnectorContextManager() as conn:
         facility_name_min_time_spent_per_visit_date(conn)
         facility_type_avg_time_spent_per_visit_date(conn)
         patient_sum_treatment_cost_per_facility_type(conn)

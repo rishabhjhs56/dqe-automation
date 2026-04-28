@@ -1,22 +1,53 @@
 import os
-import glob
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
 
-base_path = "PyTest DQ Framework/output"
-latest_folder = sorted(glob.glob(f"{base_path}/*"))[-1]
 
-parquet_path = os.path.join(
-    latest_folder,
-    "parquet",
-    "facility_type_avg_time_spent_per_visit_date"
-)
+# --------------------------------------------------
+# Base Project Paths
+# --------------------------------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = BASE_DIR / "output"
+PARQUET_DIR = OUTPUT_DIR / "parquet"
+REPORT_DIR = BASE_DIR / "html_report"
+
+REPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# --------------------------------------------------
+# Read Parquet Data
+# --------------------------------------------------
+parquet_path = PARQUET_DIR / "facility_type_avg_time_spent_per_visit_date"
+
+if not parquet_path.exists():
+    raise FileNotFoundError(
+        f"Parquet path not found: {parquet_path}"
+    )
 
 df = pd.read_parquet(parquet_path)
 
+if df.empty:
+    raise ValueError("No data found in parquet file.")
+
+
+# --------------------------------------------------
+# Data Preparation
+# --------------------------------------------------
 df["visit_date"] = pd.to_datetime(df["visit_date"])
 df = df.sort_values("visit_date", ascending=False).head(7)
 
+display_df = df[
+    ["facility_type", "visit_date", "avg_time_spent"]
+].copy()
+
+display_df["visit_date"] = display_df["visit_date"].dt.strftime("%Y-%m-%d")
+
+
+# --------------------------------------------------
+# Create Pie Chart
+# --------------------------------------------------
 fig = px.pie(
     df,
     names="facility_type",
@@ -25,59 +56,107 @@ fig = px.pie(
     title="Average Time Spent by Facility Type"
 )
 
-chart_html = fig.to_html(full_html=False, include_plotlyjs="cdn")
+fig.update_traces(
+    textposition="inside",
+    textinfo="percent+label"
+)
 
-table_html = df[[
-    "facility_type",
-    "visit_date",
-    "avg_time_spent"
-]].to_html(index=False)
+fig.update_layout(
+    title_x=0.5,
+    template="plotly_white",
+    height=500
+)
 
+chart_html = fig.to_html(
+    full_html=False,
+    include_plotlyjs="cdn"
+)
+
+
+# --------------------------------------------------
+# HTML Table
+# --------------------------------------------------
+table_html = display_df.to_html(
+    index=False,
+    classes="table",
+    border=0
+)
+
+
+# --------------------------------------------------
+# Final HTML
+# --------------------------------------------------
 html = f"""
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Facility Dashboard</title>
+
 <style>
 body {{
-font-family: Arial;
-margin:40px;
-background:#f8f9fa;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 30px;
+    background: #f4f6f8;
 }}
+
 .container {{
-background:white;
-padding:30px;
-border-radius:10px;
-box-shadow:0 0 10px #ddd;
+    max-width: 1200px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }}
-h1,h2 {{
-text-align:center;
+
+h1 {{
+    text-align: center;
+    color: #222;
 }}
+
+h2 {{
+    margin-top: 40px;
+    text-align: center;
+    color: #444;
+}}
+
 table {{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }}
-th,td {{
-padding:12px;
-border:1px solid #ddd;
-text-align:center;
+
+th, td {{
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
 }}
+
 th {{
-background:#343a40;
-color:white;
+    background: #343a40;
+    color: white;
 }}
+
+tr:nth-child(even) {{
+    background: #f8f9fa;
+}}
+
 .chart {{
-margin-top:40px;
+    margin-top: 40px;
 }}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <h1>Data Quality BI Dashboard</h1>
 
-<h2>Last 7 Days Data</h2>
+<h2>Last 7 Days Facility Data</h2>
 {table_html}
 
 <div class="chart">
@@ -85,14 +164,18 @@ margin-top:40px;
 </div>
 
 </div>
+
 </body>
 </html>
 """
 
-output_dir = "PyTest DQ Framework/html_report"
-os.makedirs(output_dir, exist_ok=True)
 
-with open(f"{output_dir}/facility_type_dashboard.html", "w") as f:
+# --------------------------------------------------
+# Save HTML File
+# --------------------------------------------------
+output_file = REPORT_DIR / "facility_type_dashboard.html"
+
+with open(output_file, "w", encoding="utf-8") as f:
     f.write(html)
 
-print("Dashboard created")
+print(f"Dashboard created successfully: {output_file}")
